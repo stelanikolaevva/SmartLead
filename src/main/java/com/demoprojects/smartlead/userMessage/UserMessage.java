@@ -1,4 +1,4 @@
-package com.demoprojects.smartlead.model;
+package com.demoprojects.smartlead.userMessage;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -8,12 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.SequenceGenerator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Entity
 @NoArgsConstructor
 @Getter
-public class Message {
+public class UserMessage {
     @Id
     @SequenceGenerator(
             name="message_sequence",
@@ -27,7 +26,7 @@ public class Message {
             columnDefinition = "TEXT")
     private String content;
 
-    public Message(String content) {
+    public UserMessage(String content) {
         this.content = content;
     }
 }

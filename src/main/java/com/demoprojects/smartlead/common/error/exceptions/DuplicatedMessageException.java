@@ -1,4 +1,4 @@
-package com.demoprojects.smartlead.exception;
+package com.demoprojects.smartlead.common.error.exceptions;
 
 public class DuplicatedMessageException extends RuntimeException {
 
