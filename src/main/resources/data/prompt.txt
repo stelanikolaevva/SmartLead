@@ -1,0 +1,21 @@
+Decide if this inbound message is a qualified lead: a real person with a concrete business need.
+Not a lead: spam, greetings, chit-chat, automated messages, or no clear intent.
+
+If it is a lead, fill in:
+- title: short title
+- type: DEMO_REQUEST | PRICING_INQUIRY | PARTNERSHIP | SUPPORT | OTHER
+- urgency: LOW | MEDIUM | HIGH (HIGH = time pressure, blocked user, or strong buying signal)
+- summary: one sentence
+
+Use only the message content. Do not invent details.
+
+Return raw JSON only. Do not wrap it in ``` or any markdown.
+{
+  "isLead": true,
+  "reason": "...",
+  "title": "...",
+  "type": "DEMO_REQUEST",
+  "urgency": "HIGH",
+  "summary": "..."
+}
+If not a lead, set isLead to false, give a reason, and set all other fields to null.
