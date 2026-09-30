@@ -1,5 +1,6 @@
 package com.demoprojects.smartlead.service;
 
+import com.demoprojects.smartlead.ai.LeadQualificationService;
 import com.demoprojects.smartlead.common.error.exceptions.DuplicatedMessageException;
 import com.demoprojects.smartlead.userMessage.UserMessage;
 import com.demoprojects.smartlead.userMessage.UserMessageMapper;
@@ -34,6 +35,8 @@ class UserMessagesServiceTest {
     private UserMessagesRepository userMessagesRepository;
     @Mock
     private UserMessageMapper mapper;
+    @Mock
+    private LeadQualificationService leadQualificationService;
 
     @InjectMocks
     private UserMessagesService userMessagesService;
@@ -70,15 +73,16 @@ class UserMessagesServiceTest {
     void shouldSaveNewMessage() {
         UserMessageRequest request = new UserMessageRequest(CONTENT);
         UserMessage saved = new UserMessage(CONTENT);
-        UserMessageResponse expected = mock(UserMessageResponse.class);
 
         when(userMessagesRepository.existsByContent(CONTENT)).thenReturn(false);
         when(userMessagesRepository.save(any(UserMessage.class))).thenReturn(saved);
-        when(mapper.mapToDto(saved)).thenReturn(expected);
 
         UserMessageResponse result = userMessagesService.postMessage(request);
 
-        assertThat(result).isSameAs(expected);
+        assertThat(result.content()).isEqualTo(CONTENT);
+        assertThat(result.id()).isEqualTo(saved.getId());
+        assertThat(result.status()).isEqualTo(saved.getStatus());
+        verify(leadQualificationService).checkIfMessageQualifies(null);
     }
 
     @Test
@@ -102,9 +106,10 @@ class UserMessagesServiceTest {
 
         assertThatThrownBy(() -> userMessagesService.postMessage(request))
                 .isInstanceOf(DuplicatedMessageException.class)
-                .hasMessage("Duplicated message!");
+                .hasMessage("Duplicated message content!");
 
         verify(userMessagesRepository, never()).save(any());
+        verify(leadQualificationService, never()).checkIfMessageQualifies(any());
         verifyNoInteractions(mapper);
     }
 }

@@ -1,5 +1,6 @@
 package com.demoprojects.smartlead.userMessage;
 
+import com.demoprojects.smartlead.ai.LeadQualificationService;
 import com.demoprojects.smartlead.common.error.exceptions.DuplicatedMessageException;
 import com.demoprojects.smartlead.userMessage.dto.UserMessageRequest;
 import com.demoprojects.smartlead.userMessage.dto.UserMessageResponse;
@@ -15,6 +16,7 @@ import java.util.List;
 public class UserMessagesService {
 
     private final UserMessagesRepository userMessagesRepository;
+    private final LeadQualificationService leadQualificationService;
     private final UserMessageMapper mapper;
 
     public List<UserMessageResponse> getAllMessages() {
@@ -26,18 +28,21 @@ public class UserMessagesService {
                 .toList();
     }
 
-    public UserMessageResponse postMessage(UserMessageRequest message) {
-        log.info("Posting new message: {}", message);
+    public UserMessageResponse postMessage(UserMessageRequest request) {
+        log.info("Posting new message: {}", request);
 
-        boolean isAlreadyAsked = userMessagesRepository.existsByContent(message.content());
+        boolean isAlreadyAsked = userMessagesRepository.existsByContent(request.content());
         if (isAlreadyAsked) {
-            log.warn("Message with content: {} already exists", message.content());
-            throw new DuplicatedMessageException("Duplicated message!");
+            log.warn("Message with content {} already exists", request.content());
+            throw new DuplicatedMessageException("Duplicated message content!");
         }
-        UserMessage saved = userMessagesRepository.save(new UserMessage(message.content()));
+
+        UserMessage saved = userMessagesRepository.save(new UserMessage(request.content()));
+
+        leadQualificationService.checkIfMessageQualifies(saved.getId());
 
         log.info("Message with id {} successfully saved.", saved.getId());
-        return mapper.mapToDto(saved);
+        return new UserMessageResponse(saved.getId(), saved.getContent(), saved.getStatus());
     }
 
 }
