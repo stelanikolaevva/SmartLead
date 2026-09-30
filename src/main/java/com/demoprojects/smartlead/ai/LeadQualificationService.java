@@ -46,7 +46,7 @@ public class LeadQualificationService {
 
         String promptMessage;
         try {
-            promptMessage = Files.readString(Path.of("src/main/resources/static/prompt.txt"));
+            promptMessage = Files.readString(Path.of("src/main/resources/data/prompt.txt"));
         } catch (IOException e) {
             throw new RuntimeException(e); //ToDo make it custom exception or a find better way to read it
         }
